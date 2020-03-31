@@ -37,7 +37,7 @@ my $dom  = $parser->load_xml(
 );
 
 # Get the updated time from the file
-my $t = Time::Piece->strptime($dom->find('//MessageDate')->to_literal()->value(), '%a, %d %b %Y %T CEST');
+my $t = Time::Piece->strptime($dom->find('//MessageDate')->to_literal()->value(), '%a, %d %b %Y %T CET');
 my $v = $t->strftime('%Y%m%d');
 
 # Get the ranges for 978* ISBNs
@@ -58,7 +58,7 @@ foreach ($dom->findnodes('//Group[starts-with(Prefix, "978")]')) {
     
     if ($length > 0) {
       my $range =  [map { substr $_, 0, $length } split /-/, $_->find('Range')];
-      push $areas->{$prefix[1]}->{'ranges'}, $range;
+      push @{$areas->{$prefix[1]}->{'ranges'}}, $range;
     }
   }
 }
@@ -68,7 +68,7 @@ my $g = $json->canonical->encode($areas);
 $g =~ s/^{/$&\n  /g;
 $g =~ s/}}$/\n  }\n}/g;
 $g =~ s/"ranges"/\n    $&/g;
-$g =~ s/:{/$&\n    /g;
+$g =~ s/:[{]/$&\n    /g;
 $g =~ s/:/$& /g;
 $g =~ s/,([\["])/, $1/g;
 $g =~ s/},/\n  $&\n /g;
